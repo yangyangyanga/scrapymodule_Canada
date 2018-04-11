@@ -15,9 +15,9 @@ class ScrapymoduleCanadaPipeline(InsertMysql):
               "entry_requirements, chinese_requirements, ATAS, GPA, average_score, accredited_university, Alevel, " \
               "IB, IELTS, IELTS_L, IELTS_S, IELTS_R, IELTS_W, TOEFL, TOEFL_L, TOEFL_S, TOEFL_R, TOEFL_W, GRE, GMAT," \
               " LSAT, MCAT, working_experience, interview, portfolio, application_documents, how_to_apply, school_test, " \
-              "SATI, SATII, SAT_code, ACT, ACT_code, other, url,ap, writer, sid, did, TOEFL_code, Application_link, campus) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+              "SATI, SATII, SAT_code, ACT, ACT_code, other, url,ap, writer, TOEFL_code, Application_link, campus, diploma_certification) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
               "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         try:
             self.cursor.execute(sql, (item["university"], item["country"], item["city"], item["website"],
                                       item["department"], item["programme"], item["degree_level"], item["degree_type"],
@@ -33,8 +33,8 @@ class ScrapymoduleCanadaPipeline(InsertMysql):
                                       item["interview"], item["portfolio"], item["application_documents"],
                                       item["how_to_apply"], item["school_test"], item["SATI"], item["SATII"],
                                       item["SAT_code"], item["ACT"], item["ACT_code"], item["other"], item["url"],
-                                      item["ap"], item["writer"], item["sid"], item["did"], item["TOEFL_code"],
-                                      item["Application_link"], item["campus"]))
+                                      item["ap"], item["writer"], item["TOEFL_code"],
+                                      item["Application_link"], item["campus"], item['diploma_certification']))
             self.db.commit()
             print("数据插入成功")
         except Exception as e:

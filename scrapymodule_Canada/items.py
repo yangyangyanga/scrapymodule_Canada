@@ -70,9 +70,10 @@ class ScrapymoduleCanadaItem(scrapy.Item):
     url = scrapy.Field()
     ap = scrapy.Field()
     writer = scrapy.Field()
-    sid = scrapy.Field()
-    did = scrapy.Field()
+    # sid = scrapy.Field()
+    # did = scrapy.Field()
     TOEFL_code = scrapy.Field()
     Application_link = scrapy.Field()
     campus = scrapy.Field()
+    diploma_certification = scrapy.Field()
 

@@ -1,455 +1,204 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
-from scrapymodule.clearSpace import clear_space, clear_space_str
-from scrapymodule.getItem import get_item1
-from scrapymodule.getTuition_fee import getTuition_fee
-from scrapymodule.items import SchoolItem1
+from scrapymodule_Canada.clearSpace import clear_space, clear_space_str
+from scrapymodule_Canada.getItem import get_item
+from scrapymodule_Canada.getTuition_fee import getTuition_fee
+from scrapymodule_Canada.items import ScrapymoduleCanadaItem
 
-class NewcastleSchoolSpider(scrapy.Spider):
-    name = "newcastleBen"
-    # start_urls = ["http://www.ncl.ac.uk/undergraduate/degrees/#a-z"]
-    start_urls = ["http://www.ncl.ac.uk/undergraduate/degrees/n400/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n402/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n406/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n280/",
-"http://www.ncl.ac.uk/undergraduate/degrees/d400/",
-"http://www.ncl.ac.uk/undergraduate/degrees/d444/",
-"http://www.ncl.ac.uk/undergraduate/degrees/d422/",
-"http://www.ncl.ac.uk/undergraduate/degrees/d402/",
-"http://www.ncl.ac.uk/undergraduate/degrees/v110/",
-"http://www.ncl.ac.uk/undergraduate/degrees/vv14/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c305/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c211/",
-"http://www.ncl.ac.uk/undergraduate/degrees/v400/",
-"http://www.ncl.ac.uk/undergraduate/degrees/k100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/k190/",
-"http://www.ncl.ac.uk/undergraduate/degrees/arch-int-found-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/arch-year-one-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h660/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h661/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c700/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c701/",
-"http://www.ncl.ac.uk/undergraduate/degrees/biol-and-biomed-int-found-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c103/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c1c7/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c7c1/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c182/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c183/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b901/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b903/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b940/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b900/",
-"http://www.ncl.ac.uk/undergraduate/degrees/nn14/",
-"http://www.ncl.ac.uk/undergraduate/degrees/bus-and-man-int-found-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/bus-year-one-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n200/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h810/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h813/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h831/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h814/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h816/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h815/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h830/",
-"http://www.ncl.ac.uk/undergraduate/degrees/hh82/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f103/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f102/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f106/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f107/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f123/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f151/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f122/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f124/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f156/",
-"http://www.ncl.ac.uk/undergraduate/degrees/tt12/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h210/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h242/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h206/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h296/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h202/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h292/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h208/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h298/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h200/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h290/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h201/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h205/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h295/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q810/",
-"http://www.ncl.ac.uk/undergraduate/degrees/qq83/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q800/",
-"http://www.ncl.ac.uk/undergraduate/degrees/y001/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g400/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g405/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g406/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g401/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i520/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i522/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i521/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i524/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g450/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i610/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g451/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i612/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i140/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i141/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g420/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i120/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g421/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i122/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i190/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i192/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i191/",
-"http://www.ncl.ac.uk/undergraduate/degrees/i194/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g600/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g603/",
-"http://www.ncl.ac.uk/undergraduate/degrees/w301/",
-"http://www.ncl.ac.uk/undergraduate/degrees/d455/",
-"http://www.ncl.ac.uk/undergraduate/degrees/a206/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h990/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h991/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f641/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f640/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f646/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f645/",
-"http://www.ncl.ac.uk/undergraduate/degrees/l100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/ln12/",
-"http://www.ncl.ac.uk/undergraduate/degrees/l161/",
-"http://www.ncl.ac.uk/undergraduate/degrees/x390/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h607/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h604/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h606/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h605/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h623/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h622/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h640/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h621/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h652/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h654/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h101/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h103/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q302/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/qv31/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q306/",
-"http://www.ncl.ac.uk/undergraduate/degrees/qw38/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f850/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f851/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f8d4/",
-"http://www.ncl.ac.uk/undergraduate/degrees/fd84/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f8h8/",
-"http://www.ncl.ac.uk/undergraduate/degrees/fh88/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f8c1/",
-"http://www.ncl.ac.uk/undergraduate/degrees/fc81/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f8f6/",
-"http://www.ncl.ac.uk/undergraduate/degrees/ff86/",
-"http://www.ncl.ac.uk/undergraduate/degrees/p303/",
-"http://www.ncl.ac.uk/undergraduate/degrees/p313/",
-"http://www.ncl.ac.uk/undergraduate/degrees/w150/",
-"http://www.ncl.ac.uk/undergraduate/degrees/w344/",
-"http://www.ncl.ac.uk/undergraduate/degrees/nd61/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b46d/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b4d6/",
-"http://www.ncl.ac.uk/undergraduate/degrees/t901/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b901/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f862/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f867/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f800/",
-"http://www.ncl.ac.uk/undergraduate/degrees/l701/",
-"http://www.ncl.ac.uk/undergraduate/degrees/lk74/",
-"http://www.ncl.ac.uk/undergraduate/degrees/t901/",
-"http://www.ncl.ac.uk/undergraduate/degrees/l241/",
-"http://www.ncl.ac.uk/undergraduate/degrees/v100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/vv41/",
-"http://www.ncl.ac.uk/undergraduate/degrees/human-and-soc-sci-int-found-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n120/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n122/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n124/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n5n2/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n5n5/",
-"http://www.ncl.ac.uk/undergraduate/degrees/tt12/",
-"http://www.ncl.ac.uk/undergraduate/degrees/p500/",
-"http://www.ncl.ac.uk/undergraduate/degrees/m101/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q1t4/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q1r1/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q1r2/",
-"http://www.ncl.ac.uk/undergraduate/degrees/q1r4/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h270/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h271/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c161/",
-"http://www.ncl.ac.uk/undergraduate/degrees/cf17/",
-"http://www.ncl.ac.uk/undergraduate/degrees/j615/",
-"http://www.ncl.ac.uk/undergraduate/degrees/j616/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h504/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h501/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h502/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h503/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h355/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h356/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h520/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h524/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c350/",
-"http://www.ncl.ac.uk/undergraduate/degrees/n500/",
-"http://www.ncl.ac.uk/undergraduate/degrees/nn52/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b62m/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g101/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g103/",
-"http://www.ncl.ac.uk/undergraduate/degrees/ng41/",
-"http://www.ncl.ac.uk/undergraduate/degrees/gl11/",
-"http://www.ncl.ac.uk/undergraduate/degrees/gg13/",
-"http://www.ncl.ac.uk/undergraduate/degrees/ggc3/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g1n3/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g1n2/",
-"http://www.ncl.ac.uk/undergraduate/degrees/hh37/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h301/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h3h8/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h3h2/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h304/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h305/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h3h6/",
-"http://www.ncl.ac.uk/undergraduate/degrees/pql0/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b902/",
-"http://www.ncl.ac.uk/undergraduate/degrees/a100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/a101/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h611/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h612/",
-"http://www.ncl.ac.uk/undergraduate/degrees/t901/",
-"http://www.ncl.ac.uk/undergraduate/degrees/tn92/",
-"http://www.ncl.ac.uk/undergraduate/degrees/qt19/",
-"http://www.ncl.ac.uk/undergraduate/degrees/r9q9/",
-"http://www.ncl.ac.uk/undergraduate/degrees/w300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/w304/",
-"http://www.ncl.ac.uk/undergraduate/degrees/bd46/",
-"http://www.ncl.ac.uk/undergraduate/degrees/bd64/",
-"http://www.ncl.ac.uk/undergraduate/degrees/a207/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b210/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b230/",
-"http://www.ncl.ac.uk/undergraduate/degrees/v500/",
-"http://www.ncl.ac.uk/undergraduate/degrees/fh82/",
-"http://www.ncl.ac.uk/undergraduate/degrees/phys-sci-and-engin-int-found-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f303/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f304/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f305/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b100/",
-"http://www.ncl.ac.uk/undergraduate/degrees/k400/",
-"http://www.ncl.ac.uk/undergraduate/degrees/l200/",
-"http://www.ncl.ac.uk/undergraduate/degrees/ll21/",
-"http://www.ncl.ac.uk/undergraduate/degrees/vl12/",
-"http://www.ncl.ac.uk/undergraduate/degrees/ll32/",
-"http://www.ncl.ac.uk/undergraduate/degrees/rt47/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c800/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c8c1/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c8g1/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c8b4/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c8c6/",
-"http://www.ncl.ac.uk/undergraduate/degrees/d452/",
-"http://www.ncl.ac.uk/undergraduate/degrees/l300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/rt47/",
-"http://www.ncl.ac.uk/undergraduate/degrees/b621/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c600/",
-"http://www.ncl.ac.uk/undergraduate/degrees/g300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/study-abroad-with-english-ipc/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h244/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h249/",
-"http://www.ncl.ac.uk/undergraduate/degrees/h392/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f345/",
-"http://www.ncl.ac.uk/undergraduate/degrees/f344/",
-"http://www.ncl.ac.uk/undergraduate/degrees/k421/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c300/",
-"http://www.ncl.ac.uk/undergraduate/degrees/c301/",]
+
+class UMBenSchoolSpider(scrapy.Spider):
+    name = "umBen"
+    start_urls = ["http://umanitoba.ca/student/admissions/programs/index.html"]
+    allow_domains = ['umanitoba.ca']
     # print(len(start_urls))
     start_urls = list(set(start_urls))
     # print(len(start_urls))
 
     def parse(self, response):
-        item = get_item1(SchoolItem1)
-        item['university'] = "Newcastle University"
-        item['country'] = 'England'
-        item['website'] = 'http://www.ncl.ac.uk/'
+        links = response.xpath("//div[@id='centerInfo']/dl/blockquote/p/a/@href").extract()
+        # print(len(links))
+        links = list(set(links))
+        # 113
+        # print(len(links))
+        for link in links:
+            if "/student/admissions/programs/" in link:
+                url = "http://umanitoba.ca" + link
+                yield scrapy.Request(url, callback=self.parse_data)
+
+    def parse_data(self, response):
+        item = get_item(ScrapymoduleCanadaItem)
+        item['university'] = "University of Manitoba"
+        item['country'] = 'Canada'
+        item['website'] = 'http://umanitoba.ca/'
         item['url'] = response.url
+        item['degree_level'] = "0"
         print("===========================")
         print(response.url)
         try:
-            # 专业
-            programme = response.xpath(
-                "//header[@class='pageTitle']/h1/text()").extract()
-            programme = ''.join(programme)
-            item['programme'] = programme
+            # 地点
+            location = response.xpath(
+                "//text()").extract()
+            location = ''.join(location)
+            # item['location'] = location
+            # print("item['location']: ", item['location'])
+
+            programmeDepartment = response.xpath(
+                "//div[@id='centerHeader']//text()").extract()
+            # print("programmeDepartment: ", programmeDepartment)
+
+            item['programme'] = ''.join(programmeDepartment)
+            if "-" in ''.join(programmeDepartment):
+                programmeDepartment = ''.join(programmeDepartment).split("-")
+                # 专业
+                item['programme'] = programmeDepartment[-1]
+                # 学院
+                item['department'] = programmeDepartment[0]
+            elif ":" in ''.join(programmeDepartment):
+                programmeDepartment = ''.join(programmeDepartment).split(":")
+                # 专业
+                item['programme'] = programmeDepartment[-1]
+                # 学院
+                item['department'] = programmeDepartment[0]
+            elif "&" in ''.join(programmeDepartment):
+                programmeDepartment = ''.join(programmeDepartment).split("&")
+                # 专业
+                item['programme'] = programmeDepartment[-1]
+                # 学院
+                item['department'] = programmeDepartment[0]
             # print("item['programme']: ", item['programme'])
-
-            # ucas_code
-            ucas_code = response.xpath(
-                "//div[@class='tablet-mobile-hide']//p[@class='no-padding']/text()").extract()
-            ucas_code = ''.join(ucas_code)
-            item['ucas_code'] = ucas_code
-            # print("item['ucas_code']: ", item['ucas_code'])
-
-            # duration
-            duration = response.xpath(
-                "//div[@class='icon-durantion tablet-mobile-hide']//p/text()").extract()
-            duration = ''.join(duration)
-            item['duration'] = duration
-            # print("item['duration']: ", item['duration'])
-
-            # degree_type
-            degree_type = response.xpath(
-                "//div[@class='icon-degree tablet-mobile-hide']//p/text()").extract()
-            degree_type = ''.join(degree_type)
-            item['degree_type'] = degree_type
-            # print("item['degree_type']: ", item['degree_type'])
-            if item['degree_type'] in item['programme'] and item['degree_type'] != "":
-                item['programme'] = ''.join(item['programme'].split(item['degree_type']))
-            # print("item['programme']: ", item['programme'])
+            # print("item['department']: ", item['department'])
 
             # overview
             overview = response.xpath(
-            "//div[@class='contentSeparator containAsides textEditorArea'][1]//text()").extract()
+                "//*[contains(text(),'Program description')]/../../following-sibling::p[1]//text()").extract()
             overview = ''.join(overview)
-            item['overview'] = overview.strip()
+            item['overview'] = overview
             # print("item['overview']: ", item['overview'])
 
-            # print(response.text)
-            # //h2[contains(text(),'Course Details')]/..
-            # modulesTeaching = response.xpath(
-            #     "//h2[contains(text(),'Course Details')]/following-sibling::div[position()<last()-1]//text()").extract()
-            # //html//div[@class='tab-wrapper']/div[@class='contentSeparator tab containAsides tabtp'][2]
+            # allcontent    //div[@id='centerInfo']
             allcontent = response.xpath(
-                "//main[@id='content']//article//text()").extract()
-            print("allcontent：", allcontent)
+                "//div[@id='centerInfo']//text()").extract()
+            clear_space(allcontent)
+            # print("allcontent: ", allcontent)
 
+            # degree_type
+            if "Degree options" in allcontent:
+                degree_typeIndex = allcontent.index("Degree options")
+                if "Program\xa0options" in allcontent[degree_typeIndex:]:
+                    degree_typeIndexEnd = allcontent.index("Program\xa0options")
+                    degree_type = allcontent[degree_typeIndex+2:degree_typeIndexEnd]
+                    # print("degree_type1: ", degree_type)
+                    degree_typeStr = ""
+                    if len(degree_type) > 2:
+                        degree_typeStr = degree_type[0] + "," + degree_type[1] + "\n" + ','.join(degree_type[2:])
+                    else:
+                        degree_typeStr = ','.join(degree_typeStr)
+                    item['degree_type'] = degree_typeStr
+                elif "Interesting courses and unique opportunities" in allcontent:
+                    degree_typeIndexEnd = allcontent.index("Interesting courses and unique opportunities")
+                    degree_type = allcontent[degree_typeIndex+2:degree_typeIndexEnd]
+                    # print("degree_type2: ", degree_type)
+                    degree_typeStr = ""
+                    if len(degree_type) > 2:
+                        degree_typeStr = degree_type[0] + "," + degree_type[1] + "\n" + ''.join(degree_type[2:])
+                    else:
+                        degree_typeStr = ''.join(degree_typeStr)
+                    item['degree_type'] = degree_typeStr
+            # print("item['degree_type']: ", item['degree_type'])
+            durationContent = item['degree_type']
+            if len(item['degree_type']) != 0:
+                detype = re.findall(r"([A-Z]\.\w+\.\s\(\w+\.\))|([A-Z]\.\w+\.)|([A-Z]\.\s\w+\.)", item['degree_type'])
+                # print("detype: ", detype)
+                if len(detype) != 0:
+                    for i in range(len(detype)):
+                        detype[i] = ''.join(list(detype[i]))
+                    item['degree_type'] = ', '.join(detype)
+            # print("item['degree_type']: ", item['degree_type'])
+
+            duration = re.findall(r"(\d\.\d+\syears)|(\d\syears)", durationContent)
+            print("duration: ", duration)
+            if len(duration) != 0:
+                for i in range(len(duration)):
+                    duration[i] = ''.join(list(duration[i]))
+                item['duration'] = ', '.join(duration)
+            print("item['duration']: ", item['duration'])
             # modules
-            if "Course Details" in allcontent:
-                modulesIndex = allcontent.index("Course Details")
-                if "Teaching and assessment" in allcontent:
-                    modulesIndexEnd = allcontent.index("Teaching and assessment")
-                    modules = allcontent[modulesIndex+1:modulesIndexEnd]
-                    clear_space(modules)
-                    item['modules'] = '\n'.join(modules)
-                elif "Next step: Entry Requirements" in allcontent:
-                    modulesIndexEnd = allcontent.index("Next step: Entry Requirements")
-                    modules = allcontent[modulesIndex+1:modulesIndexEnd]
-                    clear_space(modules)
-                    item['modules'] = '\n'.join(modules)
+            if "Interesting courses and unique opportunities" in allcontent:
+                degree_typeIndex = allcontent.index("Interesting courses and unique opportunities")
+                if "Professional opportunities" in allcontent[degree_typeIndex:]:
+                    degree_typeIndexEnd = allcontent.index("Professional opportunities")
+                    degree_type = allcontent[degree_typeIndex:degree_typeIndexEnd]
+                    item['modules'] = '\t'.join(degree_type)
             # print("item['modules']: ", item['modules'])
 
-            # 评估方式
-            if "Teaching and assessment" in allcontent:
-                teachingIndex = allcontent.index("Teaching and assessment")
-                if "Next step: Entry Requirements" in allcontent:
-                    teachingIndexEnd = allcontent.index("Next step: Entry Requirements")
-                    teaching = allcontent[teachingIndex+1:teachingIndexEnd]
-                    clear_space(teaching)
-                    item['teaching'] = '\n'.join(teaching)
-            # print("item['teaching']: ", item['teaching'])
-
-            # 学术要求
-            if "Entry Requirements" in allcontent:
-                entry_requirementsIndex = allcontent.index("Entry Requirements")
-                if "Next step: Careers" in allcontent:
-                    entry_requirementsIndexEnd = allcontent.index("Next step: Careers")
-                    entry_requirements = allcontent[entry_requirementsIndex+1:entry_requirementsIndexEnd]
-                    clear_space(entry_requirements)
-                    item['entry_requirements'] = '\n'.join(entry_requirements)
-            # print("item['entry_requirements']: ", item['entry_requirements'])
-
-            # 学术要求
-            if "Entry Requirements" in allcontent:
-                entry_requirementsIndex = allcontent.index("Entry Requirements")
-                if "Next step: Careers" in allcontent:
-                    entry_requirementsIndexEnd = allcontent.index("Next step: Careers")
-                    entry_requirements = allcontent[entry_requirementsIndex+1:entry_requirementsIndexEnd]
-                    clear_space(entry_requirements)
-                    item['entry_requirements'] = '\n'.join(entry_requirements)
-            # print("item['entry_requirements']: ", item['entry_requirements'])
-
-            # Alevel
-            if "A Levels" in allcontent:
-                AlevelIndex = allcontent.index("A Levels")
-                if "Scottish Qualifications" in allcontent:
-                    AlevelIndexEnd = allcontent.index("Scottish Qualifications")
-                    Alevel = allcontent[AlevelIndex+2:AlevelIndexEnd]
-                    clear_space(Alevel)
-                    item['Alevel'] = ''.join(Alevel).strip()
-            # print("item['Alevel']: ", item['Alevel'])
-
-            # IB
-            if "International Baccalaureate" in allcontent:
-                IBIndex = allcontent.index("International Baccalaureate")
-                if "Irish Leaving Certificate" in allcontent:
-                    IBIndexEnd = allcontent.index("Irish Leaving Certificate")
-                    IB = allcontent[IBIndex + 2:IBIndexEnd]
-                    clear_space(IB)
-                    item['IB'] = ''.join(IB).strip()
-            # print("item['IB']: ", item['IB'])
-
-            # IELTS
-            if "English language requirements" in allcontent:
-                IELTSIndex = allcontent.index("English language requirements")
-                if "International Programmes" in allcontent:
-                    IELTSIndexEnd = allcontent.index("International Programmes")
-                    IELTS = allcontent[IELTSIndex + 2:IELTSIndexEnd]
-                    clear_space(IELTS)
-                    item['IELTS'] = ''.join(IELTS).strip()
-                elif "Other International Qualifications" in allcontent:
-                    IELTSIndexEnd = allcontent.index("Other International Qualifications")
-                    IELTS = allcontent[IELTSIndex + 2:IELTSIndexEnd]
-                    clear_space(IELTS)
-                    item['IELTS'] = ''.join(IELTS).strip()
-            elif "English requirements" in allcontent:
-                IELTSIndex = allcontent.index("English requirements")
-                if "Next step: Progression" in allcontent:
-                    IELTSIndexEnd = allcontent.index("Next step: Progression")
-                    IELTS = allcontent[IELTSIndex + 2:IELTSIndexEnd]
-                    clear_space(IELTS)
-                    item['IELTS'] = ''.join(IELTS).strip()
-            elif "English Language Requirements" in allcontent:
-                IELTSIndex = allcontent.index("English Language Requirements")
-                if "International Programmes" in allcontent:
-                    IELTSIndexEnd = allcontent.index("International Programmes")
-                    IELTS = allcontent[IELTSIndex + 2:IELTSIndexEnd]
-                    clear_space(IELTS)
-                    item['IELTS'] = ''.join(IELTS).strip()
-                elif "Other International Qualifications" in allcontent:
-                    IELTSIndexEnd = allcontent.index("Other International Qualifications")
-                    IELTS = allcontent[IELTSIndex + 2:IELTSIndexEnd]
-                    clear_space(IELTS)
-                    item['IELTS'] = ''.join(IELTS).strip()
-            # print("item['IELTS']: ", item['IELTS'])
-
             # career
-            if "Careers" in allcontent:
-                careerIndex = allcontent.index("Careers")
-                if "Next step: Fees and Funding" in allcontent:
-                    careerIndexEnd = allcontent.index("Next step: Fees and Funding")
-                    career = allcontent[careerIndex + 2:careerIndexEnd]
-                    clear_space(career)
-                    item['career'] = '\n'.join(career).strip()
+            if "Professional opportunities" in allcontent:
+                degree_typeIndex = allcontent.index("Professional opportunities")
+                if "Admission Requirements" in allcontent[degree_typeIndex:]:
+                    degree_typeIndexEnd = allcontent.index("Admission Requirements")
+                    degree_type = allcontent[degree_typeIndex:degree_typeIndexEnd]
+                    item['career'] = '\t'.join(degree_type)
+                elif "Admission requirements" in allcontent[degree_typeIndex:]:
+                    degree_typeIndexEnd = allcontent.index("Admission requirements")
+                    degree_type = allcontent[degree_typeIndex:degree_typeIndexEnd]
+                    item['career'] = '\t'.join(degree_type)
             # print("item['career']: ", item['career'])
 
-            # tuition_fee
-            if "Tuition Fees (International students)" in allcontent:
-                tuition_feeIndex = allcontent.index("Tuition Fees (International students)")
-                if " Scholarships and Financial Support (UK students)" in allcontent:
-                    tuition_feeIndexEnd = allcontent.index(" Scholarships and Financial Support (UK students)")
-                    tuition_fee = allcontent[tuition_feeIndex + 2:tuition_feeIndexEnd]
-                    clear_space(tuition_fee)
-                    allfee = re.findall(r"\d+,\d+", ''.join(tuition_fee))
-                    # print("allfee: ", allfee)
-                    item['tuition_fee'] = ''.join(allfee).replace(",", "")
-            # print("item['tuition_fee']: ", item['tuition_fee'])
+            # http://umanitoba.ca/student/admissions/media/General_requirement_sheet_china.pdf
+            item['IELTS'] = "6.5"
+            item['TOEFL'] = "86"
+            item['TOEFL_L'] = "20"
+            item['TOEFL_S'] = "20"
+            item['TOEFL_R'] = "20"
+            item['TOEFL_W'] = "20"
 
-            item['how_to_apply'] = "http://www.ncl.ac.uk/undergraduate/apply/ucas/"
+            item['ACT'] = """NO ACT/SAT REQUIRED
+Students applying from the United States are not required to
+present ACT/SAT results as part of their application. All admission
+decisions are made on the basis of final high school grades."""
+            #
+            item['how_to_apply'] = """Application Process
+Preparing to apply 
+Choose an undergraduate program 
+Explore the many programs available to you. Review the complete list of programs we offer and consider your long-term career and degree goals before making your choice. For information on career choices, visit our Career Services area. Students applying for admission from high school will often begin their university studies in University 1 as a first step to their desired program. 
+Review the entrance requirements
+The requirements for all of our programs are found in our admissions requirements section. If you are not sure if you meet these requirements, contact our office for advice. 
+Check available terms and application deadlines
+The terms and deadlines for all of our programs are listed in our apply for admission section. Your application and fee must be submitted online or postmarked by the deadline to be considered. Note that some programs will continue to accept in-person paper applications after the online application process is closed. If you miss the deadline for your preferred program, check with our office for alternate suggestions. 
+Apply
 
+Applying online is easy. The online application guide is designed to assist you in applying to the undergraduate programs offered at the University of Manitoba. 
+Make sure you have the following information available before you begin the online application: 
+
+Basic biographical information such as address, date of birth, immigration details if not born in Canada, etc. You will require an email address; if you do not already have one, you can obtain a free address at any of a number of sites including hotmail.com, yahoo.com or gmail.com. 
+Details of your current and prior education including starting and end dates. 
+A valid VISA or MasterCard if you wish to pay the required application fee by credit card. You will also have the option to complete the application form online and submit the application fee by mail (cheque or international money order in Canadian funds made payable to the University of Manitoba) or in person at our office (cheque, money order, cash, or debit card). Both the application form and the application fee must be received in our office by the admission deadline. 
+
+APPLY NOW
+Offer & Acceptance
+Acknowledgement 
+Applicants will receive an acknowledgement email detailing required documentation within a few weeks of the receipt of their application by the Admissions Office. Make note of your Admission Officer's name and contact information, and your U of M ID and Applicant Numbers for any future questions about your application.
+Admission Offer
+You will receive a notice of decision once all required documentation has been received and your admission has been assessed completely.
+Acceptance
+All students who are offered admission will be required to confirm their acceptance to finalize the admission process. In some cases, students will be required to submit a non-refundable deposit on their tuition fees or to submit other documentation to hold their position. You will receive details regarding deposits, documentation due dates, and details on how to confirm the acceptance of your offer with your formal offer of admission.
+Additional Information
+Required Documentation
+Applicants must send in any documents or information requested in the acknowledgement notification as quickly as possible. Generally, applications must be complete by July 7 to be considered for September admission. (Some faculties will have different deadlines as detailed in their Applicant Bulletins or the acknowledgement letters). Photocopies are not accepted. It is recommended that original documents be sent by registered mail or courier to prevent loss. Original documents, such as marriage or birth certificates, will be returned to applicants. Other original documents may be returned if the request is made by October 1 (for Fall applications). Transcripts and other academic documents become University property and will not be returned. 
+Alternate choice of program
+Any student who applies for admissions to a Direct Entry Program other than University 1, will be automatically be considered for admission to University 1 as their alternate program. Students must complete a second application form (online or paper) and pay a second application fee, to be considered for admission to any other alternate program. The second application must be submitted by the appropriate application deadline. You do not need to wait for the admission decision on your first choice to apply for an alternate program.
+Next Steps
+To learn more about applying for residence, course selection and registration, and Student Services visit our Next Steps page. """
+            item['Application_link'] = "http://umanitoba.ca/student/admissions/application/deadlines/application-process.html"
+
+            item['deadline'] = "http://umanitoba.ca/student/admissions/application/index.html"
+            item['tuition_fee'] = "http://umanitoba.ca/student/admissions/finances/tuition-fees.html"
+            item['chinese_requirements'] = "http://umanitoba.ca/student/admissions/media/General_requirement_sheet_china.pdf"
+            item['application_fee'] = "120"
             yield item
         except Exception as e:
-            with open("./error/"+item['university']+item['degree_level']+".txt", 'w', encoding="utf-8") as f:
+            with open("./error/" + item['university'] + item['degree_level'] + ".txt", 'w', encoding="utf-8") as f:
                 f.write(str(e) + "\n" + response.url + "\n========================")
             print("异常：", str(e))
             print("报错url：", response.url)
