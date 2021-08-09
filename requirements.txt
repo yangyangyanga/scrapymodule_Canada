@@ -37,7 +37,7 @@ pyOpenSSL==17.5.0
 PyPDF2==1.26.0
 pypiwin32==220
 pytz==2017.3
-pywin32==222
+pywin32==301
 queuelib==1.4.2
 requests==2.18.4
 Scrapy==1.5.0
