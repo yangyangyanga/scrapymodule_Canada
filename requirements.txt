@@ -34,7 +34,7 @@ pyexcel-io==0.5.5
 pyexcel-xls==0.5.5
 PyMySQL==0.8.0
 pyOpenSSL==17.5.0
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pypiwin32==220
 pytz==2017.3
 pywin32==222
