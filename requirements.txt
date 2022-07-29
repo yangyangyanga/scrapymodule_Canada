@@ -40,7 +40,7 @@ pytz==2017.3
 pywin32==222
 queuelib==1.4.2
 requests==2.18.4
-Scrapy==1.5.0
+Scrapy==2.6.2
 scrapy-splash==0.7.2
 selenium==2.48.0
 service-identity==17.0.0
